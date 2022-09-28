@@ -66,6 +66,30 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </div><!-- /.col -->
 
                     </div><!-- /.row -->
+                    <div class="row mb-2">
+                        <div class="col-sm-12">
+                            <button onclick="cetak()" class="btn btn-success float-right" style="margin-left: 5px;"><i
+                                    class="fas fa-print"></i> Print
+                            </button>
+
+                        </div><!-- /.col -->
+
+                    </div>
+                    <form method="GET" action="pesanan.php" style="text-align:left;">
+                        <label>Filter : </label>
+                        <input type="date" name="cari" value="<?php if(isset($_GET['cari'])){ echo $_GET['cari']; }?>">
+                        <button type="submit" class="btn btn-sm btn-primary">filter</button>
+                    </form>
+                    <form method="GET" action="pesanan.php" style="text-align:left;">
+                        <label>Search : </label>
+                        <input type="text" name="cari" value="<?php if(isset($_GET['cari'])){ echo $_GET['cari']; }?>">
+                        <button type="submit" class="btn btn-sm btn-primary">search</button>
+                    </form>
+
+
+                    <a href="index.php" class="small-box-footer ">
+                        kembali <i class="fas fa-arrow-circle-right"></i>
+                    </a>
                 </div><!-- /.container-fluid -->
             </div>
             <div class="content">
@@ -73,16 +97,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="col-md-12">
                         <div class="card card-outline card-info">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="scroll">
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
                                                 <th style="width: 10px">No</th>
-
+                                                <th>Nama Pemesan</th>
                                                 <th>Nama Tamu</th>
+                                                <th>Nik</th>
                                                 <th>Cek in</th>
                                                 <th>Cek Out</th>
-                                                <th>No Kamar</th>
+                                                <th>Tipe Kamar</th>
+                                                <th>Harga</th>
+                                                <th>Jumlah Kamar</th>
                                                 <th>Status</th>
                                                 <th>Aksi</th>
                                             </tr>
@@ -90,37 +117,59 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                         <tbody>
                                             <?php
                                         include '../koneksi.php';
+                                        if(isset($_GET['cari'])){
+                                            $pencarian = $_GET['cari'];
+                                            $query = "select * from pemesanan where nm_pemesan like '%".$pencarian."%' or cek_in like '%".$pencarian."%' or cek_out like '%".$pencarian."%' or nik like '%".$pencarian."%'";
+            
+                                          }
+                                          else {$query = "select * from pemesanan";
+                                          }
+
                                         $no =1;
-                                        $data = mysqli_query($koneksi, "select * from pemesanan");
+                                        $data = mysqli_query($koneksi,$query);
                                         while ($d = mysqli_fetch_array($data)) {
                                             ?>
                                             <tr>
                                                 <td><?php echo $no++; ?></td>
+                                                <td><?php echo $d['nm_pemesan']; ?></td>
                                                 <td><?php echo $d['nm_tamu']; ?></td>
-                                                <td>
-                                                    <?php echo $d['cek_in']; ?>
-                                                </td>
-                                                <td>
-                                                    <?php echo $d['cek_out']; ?>
-                                                </td>
+                                                <td><?php echo $d['nik']; ?></td>
+                                                <td><?php echo $d['cek_in']; ?> </td>
+                                                <td> <?php echo $d['cek_out']; ?> </td>
                                                 <td>
                                                     <?php 
-                              $no_kamar = mysqli_query($koneksi, "select * from kamar");
-                              while ($a = mysqli_fetch_array($no_kamar)) {
+                              $tipe_kamar = mysqli_query($koneksi, "select * from kamar");
+                              while ($a = mysqli_fetch_array($tipe_kamar)) {
                                 if ($a['id_kamar'] == $d['id_kamar']) { ?>
-                                                    <?php echo $a['no_kamar']; ?>
+                                                    <?php echo $a['tipe_kamar']; ?>
                                                     <?php
                                 }
                               }
                               ?>
                                                 </td>
                                                 <td>
+                                                    <?php 
+                              $harga = mysqli_query($koneksi, "select * from kamar");
+                              while ($a = mysqli_fetch_array($harga)) {
+                                if ($a['id_kamar'] == $d['id_kamar']) { ?>
+                                                    <?php echo "Rp " . number_format($a['harga'],2,',','.'); ?>
+                                                    <?php
+                                }
+                              }
+                              ?>
+                                                </td>
+                                                <td>
+                                                    <?php echo $d['jml_kamar']; ?>
+                                                </td>
+
+
+                                                <td>
                                                     <?php
                                                 if ($d['status'] == 1) {?>
                                                     <span class="badge bg-warning">
-                                                        Belum Di Konfirmasi</span>
+                                                        Belum Check In</span>
                                                     <?php } else {?>
-                                                    <span class="badge bg-success">Sudah Di Konfirmasi</span>
+                                                    <span class="badge bg-success">Sudah Check In</span>
                                                     <?php } ?>
                                                 </td>
                                                 <td>
@@ -169,7 +218,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- AdminLTE App -->
     <script src="../assets/dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
-    <script src="../assets/dist/js/demo.js"></script>
+    
+    <script type="text/javascript">
+    function cetak() {
+        window.addEventListener("load", window.print());
+    }
+    </script>
+
+    <style>
+    .scroll {
+        height: 400px;
+        overflow: scroll;
+    }
+    </style>
 </body>
 
 </html>
