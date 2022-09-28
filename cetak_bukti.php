@@ -23,10 +23,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <div class="wrapper">
 
         <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand-md navbar-primary navbar-warning">
+        <nav class="main-header navbar navbar-expand-md navbar-light navbar-dark">
             <div class="container">
                 <a href="" class="navbar-brand">
-                    <span class="brand-text font-weight-light">Aplikasi Pemesanan Hotel</span>
+                    <img src="assets/dist/img/logo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+                        style="opacity: .8">
+                    <span class="brand-text font-weight-light">Hotel Syariah Aini</span>
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse"
@@ -56,13 +58,24 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     class="fas fa-print"></i> Print
                             </button>
                             <form method="GET" action="form_pesanan.php" style="text-align:right;">
-
                                 <a href="index.php" class="small-box-footer">
                                     home <i class="fas fa-arrow-circle-right"></i>
                                 </a>
                         </div><!-- /.col -->
 
                     </div><!-- /.row -->
+                    <!-- <form method="GET" action="pesanan.php" style="text-align:left;">
+                        <label>Filter : </label>
+                        <input type="date" name="cari" value="<?php if(isset($_GET['cari'])){ echo $_GET['cari']; }?>">
+                        <button type="submit" class="btn btn-sm btn-primary">filter</button>
+                    </form>
+                    <form method="GET" action="pesanan.php" style="text-align:left;">
+                        <label>Search : </label>
+                        <input type="text" name="cari" value="<?php if(isset($_GET['cari'])){ echo $_GET['cari']; }?>">
+                        <button type="submit" class="btn btn-sm btn-primary">search</button>
+                    </form>
+-->
+
                 </div><!-- /.container-fluid -->
             </div>
             <!-- /.content-header -->
@@ -76,80 +89,80 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="col-md-12">
                         <div class="card card-outline card-info">
                             <div class="card-body">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 10px">No</th>
-                                            <th>Nama Pemesan</th>
-                                            <th>NIK</th>
-                                            <th>Tanggal Cek In</th>
-                                            <th>Tanggal Cek Out</th>
-                                            <th>Tipe Kamar</th>
-                                            <th>Jumlah Kamar</th>
-                                            <th>Harga</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
+                                <div class="scroll">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+
+                                                <th>Nama Pemesan</th>
+                                                <th>NIK</th>
+                                                <th>Tanggal Cek In</th>
+                                                <th>Tanggal Cek Out</th>
+                                                <th>Tipe Kamar</th>
+                                                <th>Jumlah Kamar</th>
+                                                <th>Harga</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
                     include 'koneksi.php';
-                    $no = 1;
-                    $data = mysqli_query($koneksi, "select * from pemesanan");
-                    while($d = mysqli_fetch_array($data)){
+                    if(isset($_GET['cari'])){
+                        $pencarian = $_GET['cari'];
+                        $query = "select * from pemesanan where nm_pemesan like '%".$pencarian."%' or cek_in like '%".$pencarian."%' or cek_out like '%".$pencarian."%' or nik like '%".$pencarian."%'";
+
+                      }
+                      else {$query = "select * from pemesanan";
+                      } 
+                    
+                    $data = mysqli_query($koneksi, "SELECT * FROM pemesanan ORDER BY id_pesanan DESC");
+                 $d = mysqli_fetch_array($data); 
+                    
                       ?>
-                                        <tr>
-                                            <td><?php echo $no++; ?></td>
-                                            <td><?php echo $d['nm_pemesan']; ?></td>
-                                            <td><?php echo $d['nik']; ?></td>
-                                            <td><?php echo $d['cek_in']; ?></td>
-                                            <td><?php echo $d['cek_out']; ?></td>
-                                            <td>
-                                                <?php 
-                          $kamar = mysqli_query($koneksi, "select * from kamar");
+                                            <tr>
+                                                <td><?php echo $d['nm_pemesan']; ?></td>
+                                                <td><?php echo $d['nik']; ?></td>
+                                                <td><?php echo $d['cek_in']; ?></td>
+                                                <td><?php echo $d['cek_out']; ?></td>
+                                                <td>
+                                                    <?php 
+                          $kamar = mysqli_query($koneksi, "SELECT * FROM kamar");
                           while ($a = mysqli_fetch_array($kamar)) {
                             if ($a['id_kamar'] == $d['id_kamar']) { ?>
-                                                <?php echo $a['no_kamar']; ?>
-                                                <?php
+                                                    <?php echo $a['tipe_kamar']; ?>
+                                                    <?php
                             }
                           }
                           ?>
-                                            </td>
-                                            <td>
-                                                <?php 
+                                                </td>
+                                                <td>
+                                                    <?php 
                           $kamar = mysqli_query($koneksi, "select * from pemesanan");
                           while ($a = mysqli_fetch_array($kamar)) {
                             if ($a['id_pesanan'] == $d['id_pesanan']) { ?>
-                                                <?php echo $a['jml_kamar']; ?>
-                                                <?php
+                                                    <?php echo $a['jml_kamar']; ?>
+                                                    <?php
                             }
                           }
                           ?>
-                                            </td>
-                                            <td>
-                                                <?php 
+                                                </td>
+                                                <td>
+                                                    <?php 
                           $kamar = mysqli_query($koneksi, "select * from kamar");
                           while ($a = mysqli_fetch_array($kamar)) {
                             if ($a['id_kamar'] == $d['id_kamar']) { ?>
-                                                <?php echo $a['harga']; ?>
-                                                <?php
+                                                    <?php echo $a['harga']; ?>
+                                                    <?php
                             }
                           }
                           ?>
-                                            </td>
-                                            <td>
-                                                <?php
-                          if ($d['status'] == 1) { ?>
-                                                <span class="badge bg-warning">Belum di Konfirmasi</span>
-                                                <?php } else { ?>
-                                                <span class="badge bg-success">Sudah di Konfirmasi</span>
-                                                <?php } ?>
-                                            </td>
-                                        </tr>
-                                        <?php
-                    }
-                    ?>
-                                    </tbody>
-                                </table>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -185,6 +198,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <!-- AdminLTE App -->
         <script src="assets/dist/js/adminlte.min.js"></script>
+        <!-- <style>
+        .scroll {
+            height: 400px;
+            overflow: scroll;
+        }
+        </style> -->
 </body>
 
 </html>
